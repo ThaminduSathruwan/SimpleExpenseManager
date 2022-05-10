@@ -16,14 +16,60 @@
 
 package lk.ac.mrt.cse.dbs.simpleexpensemanager;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+//import android.app.Application;
+//import android.test.ApplicationTestCase;
+
+import android.content.Context;
+
+import androidx.test.core.app.ApplicationProvider;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.ExpenseManager;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.PersistentExpenseManager;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import static lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType.INCOME;
+
+import java.util.List;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
  */
-public class ApplicationTest extends ApplicationTestCase<Application> {
-    public ApplicationTest() {
-        super(Application.class);
+
+//public class ApplicationTest extends ApplicationTestCase<Application> {
+//    public ApplicationTest() {
+//        super(Application.class);
+//    }
+//}
+
+public class ApplicationTest {
+    private static ExpenseManager expenseManager;
+
+    @Before
+    public void setUp(){
+        Context context = ApplicationProvider.getApplicationContext();
+        expenseManager = new PersistentExpenseManager(context);
+    }
+
+    @Test
+    public void testAddAccount(){
+        expenseManager.addAccount("123","ABC","AaBbCc",200.0);
+        List<String> accountNumbers = expenseManager.getAccountNumbersList();
+        assertTrue(accountNumbers.contains("123"));
+    }
+
+    @Test
+    public void testTransaction() throws InvalidAccountException {
+        expenseManager.addAccount("456","DEF","DdEeFf",1000.0);
+        expenseManager.updateAccountBalance("456",25,05,2024, ExpenseType.INCOME, "500");
+        AccountDAO accountDAO = expenseManager.getAccountsDAO();
+        assertEquals((accountDAO.getAccount("456")).getBalance(),Double.parseDouble("1500"),0.01);
     }
 }
